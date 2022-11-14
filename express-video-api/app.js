@@ -36,6 +36,18 @@ app.get("/api/movies", (request, response) => {
   response.send(videos);
 });
 
+app.get("/api/movies/:id", (request, response) => {
+  const movie = videos.find(
+    (video) => video.id === Number.parseInt(request.params.id)
+  );
+  //404 error if movie not found
+  if (!movie) {
+    response.status(404).send("The movie with the given ID was not found.");
+    return;
+  }
+  response.send(movie);
+});
+
 function validateMovie(movie) {
   const schema = Joi.object({
     name: Joi.string().min(1).required(),
@@ -65,6 +77,53 @@ app.post("/api/movies", (request, response) => {
   };
   videos.push(newVideo);
   response.send(newVideo);
+});
+
+// Update a movie
+app.put("/api/movies/:id", (request, response) => {
+  const movie = videos.find(
+    (video) => video.id === Number.parseInt(request.params.id)
+  );
+  //404 error if movie not found
+  if (!movie) {
+    response.status(404).send("The movie with the given ID was not found.");
+    return;
+  }
+  const { error } = validateMovie(request.body);
+  if (error) {
+    // 400 - bad request
+    response.status(400).send(error.details[0].message);
+    return;
+  }
+  movie.name = request.body.name;
+  movie.genre = request.body.genre;
+
+  // Need to find the index of the movie
+  const videoIndex = videos.findIndex(
+    (video) => video.id === Number.parseInt(request.params.id)
+  );
+  // Splice in the revised movie info to the videos array, replacing the
+  // previous entry for that movie.
+  videos.splice(videoIndex, 1, movie);
+  // return the updated movie
+  response.send(movie);
+});
+
+app.delete("/api/movies/:id", (request, response) => {
+  const movie = videos.find(
+    (video) => video.id === Number.parseInt(request.params.id)
+  );
+  //404 error if movie not found
+  if (!movie) {
+    response.status(404).send("The movie with the given ID was not found.");
+    return;
+  }
+  // delete
+  // find index by looking for the exact object within the array (not searching for id match specifically)
+  const index = videos.indexOf(movie);
+  // Delete 1 element starting at index
+  videos.splice(index, 1);
+  response.send(movie);
 });
 
 //
