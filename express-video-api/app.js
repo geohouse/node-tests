@@ -32,4 +32,39 @@ app.get("/", (request, response) => {
   response.send("This is a test video API");
 });
 
+app.get("/api/movies", (request, response) => {
+  response.send(videos);
+});
+
+function validateMovie(movie) {
+  const schema = Joi.object({
+    name: Joi.string().min(1).required(),
+    // The genre array may contain any number of string entries.
+    genre: Joi.array().items(Joi.string()),
+  });
+
+  return schema.validate(movie);
+}
+
+// Read the body of the request and
+// add it to the videos array if it passes the schema
+app.post("/api/movies", (request, response) => {
+  // destructure the result; only care if there's an error and the
+  // body doesn't match the schema. Otherwise will add it to the
+  // videos array later.
+  const { error } = validateMovie(request.body);
+  if (error) {
+    // 400 - bad request
+    response.status(400).send(error.details[0].message);
+    return;
+  }
+  const newVideo = {
+    id: videos.length + 1,
+    name: request.body.name,
+    genre: request.body.genre,
+  };
+  videos.push(newVideo);
+  response.send(newVideo);
+});
+
 //
