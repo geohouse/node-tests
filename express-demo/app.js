@@ -52,6 +52,7 @@ app.post("/api/courses", (request, response) => {
   if (error) {
     // 400 - Bad request
     response.status(400).send(error.details[0].message);
+    return;
   }
   const course = {
     // manually add the id here on the server (wouldn't be needed if using a DB - it would assign itself)
@@ -75,6 +76,7 @@ app.get("/api/courses/:id", (request, response) => {
   //404 error if course not found
   if (!course) {
     response.status(404).send("The course with the given ID was not found.");
+    return;
   }
   response.send(course);
 });
@@ -90,6 +92,7 @@ app.put("/api/courses/:id", (request, response) => {
   //404 error if course not found
   if (!course) {
     response.status(404).send("The course with the given ID was not found.");
+    return;
   }
   // validate
 
@@ -136,6 +139,7 @@ app.delete("/api/courses/:id", (request, response) => {
   //404 error if course not found
   if (!course) {
     response.status(404).send("The course with the given ID was not found.");
+    return;
   }
   // delete
   const index = courses.indexOf(course);
